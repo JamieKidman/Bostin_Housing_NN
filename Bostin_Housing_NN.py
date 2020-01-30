@@ -32,20 +32,22 @@ http://lib.stat.cmu.edu/datasets/boston
 x_train = np.delete(x_train, 11, axis=1)
 x_test = np.delete(x_test, 11, axis=1)
 
-model = tf.keras.models.Sequential()
-model.add(tf.keras.layers.Dense(12, input_dim=12, activation=tf.nn.elu))
-model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
-model.add(tf.keras.layers.Dense(64, activation=tf.nn.relu))
-model.add(tf.keras.layers.Dense(12, activation=tf.nn.relu))
+def bruteforce_CNN(structure):
+    
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Dense(1, kernel_initializer='normal'))
+    
+    for size in structure:
+        model.add(tf.keras.layers.Dense(size, activation=tf.nn.relu))
+    
 
-model.add(tf.keras.layers.Dense(1, kernel_initializer='normal'))
+    model.compile(loss="mean_squared_error", optimizer="RMSprop", metrics=["mean_absolute_error"])
+
+    model.fit(x_train, y_train, epochs=1000, use_multiprocessing=True)
+    return model
 
 
-model.compile(loss="mean_squared_error", optimizer="RMSprop", metrics=["mean_absolute_error"])
-
-model.fit(x_train, y_train, epochs=5000, use_multiprocessing=True)
-
-
+model = bruteforce([12, 64])
 model.evaluate(x_test, y_test)
 
 model.test_on_batch(x_test, y_test)
